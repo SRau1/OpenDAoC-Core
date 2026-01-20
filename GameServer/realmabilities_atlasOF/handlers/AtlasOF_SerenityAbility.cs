@@ -12,7 +12,8 @@ namespace DOL.GS.RealmAbilities
 
         public override bool CheckRequirement(GamePlayer player)
         {
-            return AtlasRAHelpers.GetAugAcuityLevel(player) >= 2;
+            //return AtlasRAHelpers.GetAugAcuityLevel(player) >= 2;
+            return true;
         }
 
         public override int CostForUpgrade(int level)
