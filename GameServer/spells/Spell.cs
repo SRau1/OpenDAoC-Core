@@ -66,7 +66,7 @@ namespace DOL.GS
 		protected int m_overriderange = 0;
 		protected bool m_isShearable = false;
 		// tooltip
-		protected ushort m_tooltipId = 0;
+		protected int m_tooltipId = 0;
 
 		// params
 		public Dictionary<string, object> CustomParamsDictionary { get; set; }

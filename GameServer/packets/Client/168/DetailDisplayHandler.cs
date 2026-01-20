@@ -1974,7 +1974,7 @@ namespace DOL.GS.PacketHandler.Client.v168
 
 		public static string DelveSong(GameClient client, int id)
 		{
-			Spell spell = SkillBase.GetSpellByTooltipID((ushort) id);
+			Spell spell = SkillBase.GetSpellByTooltipID(id);
 			ISpellHandler spellHandler = ScriptMgr.CreateSpellHandler(client.Player, spell, SkillBase.GetSpellLine(GlobalSpellsLines.Reserved_Spells));
 
 			if (spellHandler == null)

@@ -61,7 +61,7 @@ namespace DOL.GS
 		protected static readonly Dictionary<int, Spell> m_spellIndex = new();
 
 		// Spells Tooltip Dict ToolTipID => SpellID
-		protected static readonly Dictionary<ushort, int> m_spellToolTipIndex = new();
+		protected static readonly Dictionary<int, int> m_spellToolTipIndex = new();
 
 		// lookup table for styles, faster access when invoking a char styleID with classID
 		protected static readonly Dictionary<KeyValuePair<int, int>, Style> m_styleIndex = new();
@@ -2342,10 +2342,10 @@ namespace DOL.GS
 					// Update tooltip index
 					if (spell.InternalID != 0)
 					{
-						if (m_spellToolTipIndex.ContainsKey((ushort)spell.InternalID))
-							m_spellToolTipIndex[(ushort)spell.InternalID] = spell.ID;
+						if (m_spellToolTipIndex.ContainsKey(spell.InternalID))
+							m_spellToolTipIndex[spell.InternalID] = spell.ID;
 						else
-							m_spellToolTipIndex.Add((ushort)spell.InternalID, spell.ID);
+							m_spellToolTipIndex.Add(spell.InternalID, spell.ID);
 					}
 
 					return true;
@@ -2451,8 +2451,8 @@ namespace DOL.GS
 					m_spellIndex.Add(spell.ID, spcp);
 
 					// Add Tooltip Index
-					if (spcp.InternalID != 0 && !m_spellToolTipIndex.ContainsKey((ushort)spcp.InternalID))
-						m_spellToolTipIndex.Add((ushort)spcp.InternalID, spcp.ID);
+					if (spcp.InternalID != 0 && !m_spellToolTipIndex.ContainsKey(spcp.InternalID))
+						m_spellToolTipIndex.Add(spcp.InternalID, spcp.ID);
 				}
 			}
 			finally
@@ -2852,7 +2852,7 @@ namespace DOL.GS
 		/// </summary>
 		/// <param name="spellID"></param>
 		/// <returns></returns>
-		public static Spell GetSpellByTooltipID(ushort ttid)
+		public static Spell GetSpellByTooltipID(int ttid)
 		{
 			Spell spell;
 			m_syncLockUpdates.EnterReadLock();

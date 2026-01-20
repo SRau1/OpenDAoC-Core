@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace DOL.GS
@@ -7,7 +7,7 @@ namespace DOL.GS
     {
         private GamePlayer _owner;
 
-        private readonly Dictionary<int, ECSGameEffect> _effectIdToEffect = new();   // Dictionary of effects by their icon ID.
+        private readonly Dictionary<int, ECSGameEffect> _effectIdToEffect = new();   // Dictionary of effects by their InternalID (TooltipId for spells).
         private EffectHelper.PlayerUpdate _requestedPlayerUpdates;                   // Player updates requested by the effects, to be sent in the next tick.
         private int _lastUpdateEffectsCount;                                         // Number of effects sent in the last player update, used externally.
         private readonly Lock _playerUpdatesLock = new();
@@ -47,13 +47,46 @@ namespace DOL.GS
         protected override void SetEffectIdToEffect(ECSGameEffect effect)
         {
             // `_effectsLock` is expected to be acquired already.
-            _effectIdToEffect[effect.Icon] = effect;
+            // Use InternalID (TooltipId) for spell effects, Icon for other effects
+            // Note: Client sends ushort, so we need to register both the full ID and truncated version
+            if (effect is ECSGameSpellEffect spellEffect && spellEffect.SpellHandler?.Spell != null)
+            {
+                int internalId = spellEffect.SpellHandler.Spell.InternalID;
+                if (internalId != 0)
+                {
+                    _effectIdToEffect[internalId] = effect;
+                    // Also register with truncated ushort value since client sends that
+                    ushort truncatedId = (ushort)internalId;
+                    if (truncatedId != 0 && truncatedId != internalId)
+                        _effectIdToEffect[truncatedId] = effect;
+                }
+            }
+            else if (effect.Icon != 0)
+            {
+                _effectIdToEffect[effect.Icon] = effect;
+            }
         }
 
         protected override void RemoveEffectIdToEffect(ECSGameEffect effect)
         {
             // `_effectsLock` is expected to be acquired already.
-            _effectIdToEffect.Remove(effect.Icon);
+            // Remove both the full ID and truncated version if registered
+            if (effect is ECSGameSpellEffect spellEffect && spellEffect.SpellHandler?.Spell != null)
+            {
+                int internalId = spellEffect.SpellHandler.Spell.InternalID;
+                if (internalId != 0)
+                {
+                    _effectIdToEffect.Remove(internalId);
+                    // Also remove truncated ushort value if it was registered
+                    ushort truncatedId = (ushort)internalId;
+                    if (truncatedId != 0 && truncatedId != internalId)
+                        _effectIdToEffect.Remove(truncatedId);
+                }
+            }
+            else if (effect.Icon != 0)
+            {
+                _effectIdToEffect.Remove(effect.Icon);
+            }
         }
 
         private void SendPlayerUpdates()

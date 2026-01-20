@@ -53,7 +53,7 @@ namespace DOL.Database
 		protected bool m_allowbolt;
 
 		// tooltip
-		protected ushort m_tooltipId;
+		protected int m_tooltipId;
 		
 		public DbSpell()
 		{
@@ -601,7 +601,7 @@ namespace DOL.Database
 		#endregion
 
 		[DataElement(AllowDbNull = false)]
-		public ushort TooltipId
+		public int TooltipId
 		{
 			get
 			{

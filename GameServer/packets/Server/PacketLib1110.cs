@@ -101,8 +101,10 @@ namespace DOL.GS.PacketHandler
 					// bit 0x08 adds "more..." to right click info
 					pak.WriteShort(effect.Icon);
 					pak.WriteShort((ushort)(effect.GetRemainingTimeForClient() / 1000));
-					if (effect is ECSGameEffect || effect is ECSImmunityEffect)
-						pak.WriteShort(effect.Icon); //v1.110+ send the spell ID for delve info in active icon
+					if (effect is ECSGameSpellEffect spellEffect)
+						pak.WriteShort((ushort)spellEffect.SpellHandler.Spell.InternalID); //v1.110+ send the spell's InternalID (TooltipId) for delve info
+					else if (effect is ECSGameEffect || effect is ECSImmunityEffect)
+						pak.WriteShort(effect.Icon); // Fallback for non-spell effects
 					else
 						pak.WriteShort(0);//don't override existing tooltip ids
 
