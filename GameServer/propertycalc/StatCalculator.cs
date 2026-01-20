@@ -90,7 +90,7 @@ namespace DOL.GS.PropertyCalc
             {
                 if (property == (eProperty) player.CharacterClass.ManaStat)
                 {
-                    if (player.CharacterClass.ClassType == eClassType.ListCaster)
+                    if (player.CharacterClass.ClassType == eClassType.ListCaster || player.CharacterClass.ClassType == eClassType.Hybrid)
                         specBuffBonus += player.BaseBuffBonusCategory[eProperty.Acuity];
                 }
             }
