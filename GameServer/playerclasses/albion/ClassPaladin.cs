@@ -30,7 +30,7 @@ namespace DOL.GS.PlayerClass
 			: base()
 		{
 			m_profession = "PlayerClass.Profession.ChurchofAlbion";
-			m_specializationMultiplier = 25; //atlas increased from 20
+			m_specializationMultiplier = 22; //atlas increased from 20
 			m_primaryStat = eStat.CON;
 			m_secondaryStat = eStat.PIE;
 			m_tertiaryStat = eStat.STR;

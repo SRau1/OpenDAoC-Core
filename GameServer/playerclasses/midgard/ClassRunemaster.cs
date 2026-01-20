@@ -28,7 +28,7 @@ namespace DOL.GS.PlayerClass
 			: base()
 		{
 			m_profession = "PlayerClass.Profession.HouseofOdin";
-			m_specializationMultiplier = 10;
+			m_specializationMultiplier = 14;
 			m_primaryStat = eStat.PIE;
 			m_secondaryStat = eStat.DEX;
 			m_tertiaryStat = eStat.QUI;
@@ -38,6 +38,11 @@ namespace DOL.GS.PlayerClass
 		public override bool HasAdvancedFromBaseClass()
 		{
 			return true;
+		}
+
+		public override ushort MaxPulsingSpells
+		{
+			get { return 2; }
 		}
 
 		public override List<PlayerRace> EligibleRaces => new List<PlayerRace>()

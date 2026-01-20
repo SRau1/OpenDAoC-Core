@@ -27,7 +27,7 @@ namespace DOL.GS.PlayerClass
 		public ClassAnimist()
 			: base()
 		{
-			m_specializationMultiplier = 10;
+			m_specializationMultiplier = 14;
 			m_wsbase = 280;
 			m_baseHP = 560;
 			m_manaStat = eStat.INT;
