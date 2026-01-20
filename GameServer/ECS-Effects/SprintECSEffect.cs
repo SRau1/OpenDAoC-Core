@@ -44,12 +44,12 @@ namespace DOL.GS
 
         public override void OnEffectPulse()
         {
-            if (Owner.IsMoving)
-                _idleTicks = 0;
-            else
-                _idleTicks++;
+            //if (Owner.IsMoving)
+            //    _idleTicks = 0;
+            //else
+            //    _idleTicks++;
 
-            if (Owner.Endurance - 5 <= 0 || _idleTicks >= 30)
+            if (Owner.Endurance - 5 <= 0)
                 End();
         }
     }
