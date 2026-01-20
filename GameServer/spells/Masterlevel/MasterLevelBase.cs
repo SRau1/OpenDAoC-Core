@@ -130,6 +130,44 @@ namespace DOL.GS.Spells
 
                     break;
                 }
+                case eSpellTarget.SELF_AND_PET:
+                {
+                    int spellRange = spell.CalculateEffectiveRange(caster);
+
+                    if (spellRange == 0)
+                        spellRange = spell.Radius;
+
+                    if (caster is GamePlayer player)
+                    {
+                        // Always add self
+                        list.Add(caster);
+
+                        IControlledBrain npc = player.ControlledBrain;
+
+                        if (npc != null)
+                        {
+                            // Add our first pet
+                            GameNPC petBody = npc.Body;
+
+                            if (caster.IsWithinRadius(petBody, spellRange))
+                                list.Add(petBody);
+
+                            // Now add any subpets!
+                            if (petBody != null && petBody.ControlledNpcList != null)
+                            {
+                                foreach (IControlledBrain icb in petBody.ControlledNpcList)
+                                {
+                                    if (icb != null && caster.IsWithinRadius(icb.Body, spellRange))
+                                        list.Add(icb.Body);
+                                }
+                            }
+                        }
+                    }
+                    else
+                        list.Add(caster);
+
+                    break;
+                }
                 case eSpellTarget.GROUP:
                 {
                     Group group = caster.Group;

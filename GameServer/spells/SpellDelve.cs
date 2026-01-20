@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -158,6 +158,7 @@ namespace DOL.GS.Spells
                 eSpellTarget.SELF => 0,
                 eSpellTarget.ENEMY or eSpellTarget.CONE => 1,
                 eSpellTarget.PET or eSpellTarget.CONTROLLED => 6,
+                eSpellTarget.SELF_AND_PET => 6,
                 eSpellTarget.GROUP => 3,
                 eSpellTarget.AREA => 9,
                 eSpellTarget.CORPSE => 8,

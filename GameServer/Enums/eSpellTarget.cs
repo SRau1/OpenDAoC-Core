@@ -7,6 +7,7 @@ namespace DOL.GS
         GROUP,
         REALM,
         PET,
+        SELF_AND_PET,
         CONTROLLED,
         ENEMY,
         AREA,
