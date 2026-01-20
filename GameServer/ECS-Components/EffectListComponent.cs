@@ -365,8 +365,39 @@ namespace DOL.GS
             {
                 IEnumerable<ECSPulseEffect> otherPulseEffects = GetPulseEffects().Where(x => !PulseSpellGroupsIgnoringOtherPulseSpells.Contains(x.SpellHandler.Spell.Group));
 
-                foreach (ECSPulseEffect otherPulseEffect in otherPulseEffects)
-                    otherPulseEffect.End();
+                // If the owner is a player, check MaxPulsingSpells limit
+                if (Owner is GamePlayer player)
+                {
+                    ushort maxPulsingSpells = player.CharacterClass.MaxPulsingSpells;
+                    
+                    // Filter out effects of the same SpellType (this is just a refresh, don't cancel others)
+                    var effectsOfDifferentType = otherPulseEffects
+                        .Where(x => x.SpellHandler.Spell.SpellType != spellHandler.Spell.SpellType)
+                        .ToList();
+                    
+                    // Count all current pulse effects (including the one being refreshed)
+                    int currentPulseCount = otherPulseEffects.Count();
+                    
+                    // Only cancel if we're at the limit and this is a NEW spell type (not a refresh)
+                    bool isNewSpellType = !otherPulseEffects.Any(x => x.SpellHandler.Spell.SpellType == spellHandler.Spell.SpellType);
+                    
+                    if (isNewSpellType && currentPulseCount >= maxPulsingSpells)
+                    {
+                        // Need to make room for the new spell - cancel the oldest ones
+                        var sortedEffects = effectsOfDifferentType.OrderBy(x => x.StartTick).ToList();
+                        int needToCancel = currentPulseCount - maxPulsingSpells + 1; // +1 for the new spell
+                        
+                        for (int i = 0; i < needToCancel && i < sortedEffects.Count; i++)
+                            sortedEffects[i].End();
+                    }
+                    // If it's a refresh (same SpellType) or we're under the limit, don't cancel anything
+                }
+                else
+                {
+                    // For NPCs, keep the old behavior (cancel all other pulse effects)
+                    foreach (ECSPulseEffect otherPulseEffect in otherPulseEffects)
+                        otherPulseEffect.End();
+                }
             }
         }
 
@@ -595,8 +626,16 @@ namespace DOL.GS
 
                     _effects.TryAdd(effect.EffectType, [effect]);
 
-                    if (effect.EffectType is not eEffect.Pulse && effect.Icon != 0)
-                        SetEffectIdToEffect(effect);
+                    // Register effect for cancellation if it has a valid ID (InternalID for spells, Icon for others)
+                    if (effect.EffectType is not eEffect.Pulse)
+                    {
+                        bool hasValidId = effect is ECSGameSpellEffect spellEffect && spellEffect.SpellHandler?.Spell != null
+                            ? spellEffect.SpellHandler.Spell.InternalID != 0
+                            : effect.Icon != 0;
+                        
+                        if (hasValidId)
+                            SetEffectIdToEffect(effect);
+                    }
 
                     return AddEffectResult.Added;
                 }
@@ -766,8 +805,16 @@ namespace DOL.GS
                 existingEffects.Add(effect);
                 _effects.TryAdd(effect.EffectType, existingEffects);
 
-                if (effect.EffectType is not eEffect.Pulse && effect.Icon != 0)
-                    SetEffectIdToEffect(effect);
+                // Register effect for cancellation if it has a valid ID (InternalID for spells, Icon for others)
+                if (effect.EffectType is not eEffect.Pulse)
+                {
+                    bool hasValidId = effect is ECSGameSpellEffect spellEffect && spellEffect.SpellHandler?.Spell != null
+                        ? spellEffect.SpellHandler.Spell.InternalID != 0
+                        : effect.Icon != 0;
+                    
+                    if (hasValidId)
+                        SetEffectIdToEffect(effect);
+                }
 
                 // Disabling and stopping weaker effects must be done after the current effect has been added to the list.
 
