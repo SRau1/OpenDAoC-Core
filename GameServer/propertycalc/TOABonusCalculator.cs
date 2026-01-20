@@ -96,7 +96,8 @@ namespace DOL.GS.PropertyCalc
             int abilityBonusOverCap = Math.Max(0, abilityBonus - 15);
             int itemBonus = livingToCheck.ItemBonus[property]; // ToA item bonus, capped at 10%.
             int itemBonusOverCap = Math.Max(0, itemBonus - 10);
-            int cappedBonus = (abilityBonus - abilityBonusOverCap) + (itemBonus - itemBonusOverCap);
+            int buffBonus = living.BaseBuffBonusCategory[property]; // Spell buffs (CastingSpeedBuff)
+            int cappedBonus = (abilityBonus - abilityBonusOverCap) + (itemBonus - itemBonusOverCap) + buffBonus;
             int remainingDebuff = Math.Max(0, living.DebuffCategory[property] - (abilityBonusOverCap + itemBonusOverCap));
             return cappedBonus - remainingDebuff;
         }

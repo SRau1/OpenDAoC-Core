@@ -12,6 +12,7 @@ namespace DOL.GS
         AblativeArmor,
         MeleeDamageBuff,
         MeleeHasteBuff,
+        CastingSpeedBuff,
         Celerity,
         MovementSpeedBuff,
         HealOverTime,
@@ -62,6 +63,7 @@ namespace DOL.GS
         MovementSpeedDebuff,
         MeleeDamageDebuff,
         MeleeHasteDebuff,
+        CastingSpeedDebuff,
         Disease,
 
         //Crowd Control Effects
@@ -109,6 +111,8 @@ namespace DOL.GS
         MesmerizeDurationBuff,
         FatigueConsumptionBuff,
         FatigueConsumptionDebuff,
+        PowerConsumptionBuff,
+        PowerConsumptionDebuff,
         SavageBuff,
         Pet,
         OffensiveProc,

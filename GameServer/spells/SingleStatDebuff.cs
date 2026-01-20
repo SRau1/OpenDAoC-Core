@@ -86,7 +86,7 @@ namespace DOL.GS.Spells
         public override eProperty Property1 => eProperty.MeleeSpeed;
 
         protected override void SendUpdates(GameLiving target) { }
-    }
+    } 
 
     [SpellHandler(eSpellType.MeleeDamageDebuff)]
     public class MeleeDamageDebuff(GameLiving caster, Spell spell, SpellLine line) : SingleStatDebuff(caster, spell, line)
@@ -102,6 +102,13 @@ namespace DOL.GS.Spells
     {
         public override string ShortDescription => $"Increases the target's endurance consumption in combat by {Spell.Value}%.";
         public override eProperty Property1 => eProperty.FatigueConsumption;
+    }
+
+    [SpellHandler(eSpellType.PowerConsumptionDebuff)]
+    public class PowerConsumptionDebuff(GameLiving caster, Spell spell, SpellLine line) : SingleStatDebuff(caster, spell, line)
+    {
+        public override string ShortDescription => $"Increases the target's power consumption in combat by {Spell.Value}%.";
+        public override eProperty Property1 => eProperty.PowerConsumption;
 
         protected override void SendUpdates(GameLiving target) { }
     }

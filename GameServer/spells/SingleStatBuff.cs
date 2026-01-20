@@ -170,6 +170,15 @@ namespace DOL.GS.Spells
         protected override void SendUpdates(GameLiving target) { }
     }
 
+    [SpellHandler(eSpellType.CastingSpeedBuff)]
+    public class CastingSpeedBuff(GameLiving caster, Spell spell, SpellLine line) : SingleStatBuff(caster, spell, line)
+    {
+        public override string ShortDescription => $"Increases {TargetPronoun} casting speed by {Math.Abs(Spell.Value)}%.";
+        public override eProperty Property1 => eProperty.CastingSpeed;
+
+        protected override void SendUpdates(GameLiving target) { }
+    }
+
     [SpellHandler(eSpellType.HasteBuff)]
     public class HasteBuff(GameLiving caster, Spell spell, SpellLine line) : CombatSpeedBuff(caster, spell, line) { }
 
@@ -181,6 +190,15 @@ namespace DOL.GS.Spells
     {
         public override string ShortDescription => $"{TargetPronounCapitalized} actions require {Spell.Value}% less endurance.";
         public override eProperty Property1 => eProperty.FatigueConsumption;
+
+        protected override void SendUpdates(GameLiving target) { }
+    }
+
+    [SpellHandler(eSpellType.PowerConsumptionBuff)]
+    public class PowerConsumptionBuff(GameLiving caster, Spell spell, SpellLine line) : SingleStatBuff(caster, spell, line)
+    {
+        public override string ShortDescription => $"{TargetPronounCapitalized} spells require {Spell.Value}% less power.";
+        public override eProperty Property1 => eProperty.PowerConsumption;
 
         protected override void SendUpdates(GameLiving target) { }
     }

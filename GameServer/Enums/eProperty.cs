@@ -1,4 +1,4 @@
-﻿namespace DOL.GS
+namespace DOL.GS
 {
     /// <summary>
     /// all available and buffable/bonusable properties on livings
@@ -157,7 +157,7 @@
         Focus_Light = 128,
         Focus_Body = 129,
         Focus_Matter = 130,
-        // 131 Available
+        PowerConsumption = 131,
         Focus_Mind = 132,
         Focus_Void = 133,
         Focus_Mana = 134,

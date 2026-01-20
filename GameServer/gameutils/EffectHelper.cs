@@ -55,6 +55,8 @@ namespace DOL.GS
                     return eEffect.MeleeDamageBuff;
                 case eSpellType.CombatSpeedBuff:
                     return eEffect.MeleeHasteBuff;
+                case eSpellType.CastingSpeedBuff:
+                    return eEffect.CastingSpeedBuff;
                 //case eSpellType.Celerity: // Possibly the same as CombatSpeedBuff?
                 //    return eEffect.Celerity;
                 case eSpellType.SpeedOfTheRealm:
@@ -76,6 +78,8 @@ namespace DOL.GS
                     return eEffect.StrengthConBuff;
                 case eSpellType.DexterityQuicknessBuff:
                     return eEffect.DexQuickBuff;
+                case eSpellType.QuicknessBuff:
+                    return eEffect.QuicknessBuff;
                 case eSpellType.AcuityBuff:
                     return eEffect.AcuityBuff;
                 case eSpellType.ArmorAbsorptionBuff:
@@ -146,6 +150,8 @@ namespace DOL.GS
                 case eSpellType.StyleCombatSpeedDebuff:
                 case eSpellType.CombatSpeedDebuff:
                     return eEffect.MeleeHasteDebuff;
+                case eSpellType.CastingSpeedDebuff:
+                    return eEffect.CastingSpeedDebuff;
                 case eSpellType.Disease:
                     return eEffect.Disease;
                 case eSpellType.Confusion:
@@ -179,6 +185,8 @@ namespace DOL.GS
                     return eEffect.StrConDebuff;
                 case eSpellType.DexterityQuicknessDebuff:
                     return eEffect.DexQuiDebuff;
+                case eSpellType.QuicknessDebuff:
+                    return eEffect.QuicknessDebuff;
                 case eSpellType.WeaponSkillConstitutionDebuff:
                     return eEffect.WsConDebuff;
                 //case eSpellType.AcuityDebuff: // Not sure what this is yet.
@@ -225,6 +233,10 @@ namespace DOL.GS
                     return eEffect.FatigueConsumptionBuff;
                 case eSpellType.FatigueConsumptionDebuff:
                     return eEffect.FatigueConsumptionDebuff;
+                case eSpellType.PowerConsumptionBuff:
+                    return eEffect.PowerConsumptionBuff;
+                case eSpellType.PowerConsumptionDebuff:
+                    return eEffect.PowerConsumptionDebuff;
                 case eSpellType.DirectDamageWithDebuff:
                     if (spell.DamageType == eDamageType.Body)
                         return eEffect.BodyResistDebuff;
@@ -327,6 +339,10 @@ namespace DOL.GS
                 case eEffect.AcuityBuff:
                 case eEffect.AcuityDebuff:
                     list.Add(eProperty.Acuity);
+                    return list;
+                case eEffect.QuicknessBuff:
+                case eEffect.QuicknessDebuff:
+                    list.Add(eProperty.Quickness);
                     return list;
                 case eEffect.StrengthConBuff:
                 case eEffect.StrConDebuff:
@@ -432,6 +448,10 @@ namespace DOL.GS
                 case eEffect.MeleeHasteDebuff:
                     list.Add(eProperty.MeleeSpeed);
                     return list;
+                case eEffect.CastingSpeedBuff:
+                case eEffect.CastingSpeedDebuff:
+                    list.Add(eProperty.CastingSpeed);
+                    return list;
                 case eEffect.MovementSpeedBuff:
                 case eEffect.MovementSpeedDebuff:
                     list.Add(eProperty.MaxSpeed);
@@ -443,6 +463,11 @@ namespace DOL.GS
                 case eEffect.FatigueConsumptionDebuff:
                     list.Add(eProperty.FatigueConsumption);
                     return list;
+                case eEffect.PowerConsumptionBuff:
+                case eEffect.PowerConsumptionDebuff:
+                    list.Add(eProperty.PowerConsumption);
+                    return list;
+                
                 default:
                     return list;
             }

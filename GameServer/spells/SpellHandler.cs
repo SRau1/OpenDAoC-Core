@@ -35,8 +35,8 @@ namespace DOL.GS.Spells
 		private const int PULSING_SPELL_END_OF_CAST_MESSAGE_INTERVAL = 2000;
 
 		public virtual string ShortDescription => Spell.Description;
-		protected string TargetPronoun => Spell.Target is eSpellTarget.SELF ? "your" : "the target's";
-		protected string TargetPronounCapitalized => Spell.Target is eSpellTarget.SELF ? "Your" : "The target's";
+		protected string TargetPronoun => Spell.Target is eSpellTarget.SELF or eSpellTarget.SELF_AND_PET ? "your" : "the target's";
+		protected string TargetPronounCapitalized => Spell.Target is eSpellTarget.SELF or eSpellTarget.SELF_AND_PET ? "Your" : "The target's";
 
 		public GameLiving Target { get; set; }
 		public eCastState CastState { get; private set; }
@@ -410,6 +410,12 @@ namespace DOL.GS.Spells
 				case eSpellTarget.SELF:
 				{
 					// Self spells should ignore whatever we actually have selected.
+					Target = Caster;
+					break;
+				}
+				case eSpellTarget.SELF_AND_PET:
+				{
+					// Self and pet spells should ignore whatever we actually have selected.
 					Target = Caster;
 					break;
 				}
@@ -874,7 +880,7 @@ namespace DOL.GS.Spells
 					return false;
 				}
 			}
-			else if (m_spell.Target is not eSpellTarget.SELF && m_spell.Target is not eSpellTarget.GROUP && m_spell.Target is not eSpellTarget.CONE && m_spell.Range > 0)
+			else if (m_spell.Target is not eSpellTarget.SELF && m_spell.Target is not eSpellTarget.SELF_AND_PET && m_spell.Target is not eSpellTarget.GROUP && m_spell.Target is not eSpellTarget.CONE && m_spell.Range > 0)
 			{
 				if (m_spell.Target is not eSpellTarget.PET)
 				{
@@ -1137,7 +1143,9 @@ namespace DOL.GS.Spells
 			double powerCost = m_spell.Power;
 			GamePlayer playerCaster = Caster as GamePlayer;
 
-			// Percent of max power if less than zero.
+			// Handle percentage-based power costs (negative values).
+			// Convert percentage to flat value based on max mana before applying modifiers.
+			// Example: -10 means 10% of max mana.
 			if (powerCost < 0)
 			{
 				if (playerCaster != null && playerCaster.CharacterClass.ManaStat is not eStat.UNDEFINED)
@@ -1145,7 +1153,9 @@ namespace DOL.GS.Spells
 				else
 					powerCost = Caster.MaxMana * powerCost * -0.01;
 			}
+			// At this point, powerCost is always a flat value (positive), regardless of whether it started as percentage or flat.
 
+			// Apply focus caster modifiers (only for focus casters).
 			if (playerCaster != null && playerCaster.CharacterClass.IsFocusCaster)
 			{
 				eProperty focusProp = SkillBase.SpecToFocus(SpellLine.Spec);
@@ -1170,6 +1180,13 @@ namespace DOL.GS.Spells
 			// Doubled power usage if using QuickCast.
 			if (IsQuickCasting && Spell.CastTime > 0)
 				powerCost *= 2;
+
+			// Apply PowerConsumption modifier (buffs/debuffs that reduce/increase power cost).
+			// This applies to both percentage-based and flat power costs after they've been converted to flat values.
+			// PowerConsumption is a percentage: 80 = 20% reduction, 120 = 20% increase.
+			int powerConsumption = Caster.GetModified(eProperty.PowerConsumption);
+			if (powerConsumption != 100)
+				powerCost *= powerConsumption * 0.01;
 
 			return (int) powerCost;
 		}
@@ -1701,6 +1718,60 @@ namespace DOL.GS.Spells
 					}
 					else
 						list.Add(Caster);
+
+					break;
+				}
+				case eSpellTarget.SELF_AND_PET:
+				{
+					int spellRange;
+
+					if (Spell.Range == 0)
+						spellRange = modifiedRadius;
+					else
+						spellRange = Spell.CalculateEffectiveRange(m_caster);
+
+					if (m_caster is GamePlayer)
+					{
+						// Always add self
+						list.Add(m_caster);
+
+						IControlledBrain npc = m_caster.ControlledBrain;
+
+						if (npc != null)
+						{
+							// Add our first pet
+							GameNPC petBody = npc.Body;
+
+							if (m_caster.IsWithinRadius(petBody, spellRange))
+								list.Add(petBody);
+
+							// Now add any subpets!
+							if (petBody != null && petBody.ControlledNpcList != null)
+							{
+								foreach (IControlledBrain icb in petBody.ControlledNpcList)
+								{
+									if (icb != null && m_caster.IsWithinRadius(icb.Body, spellRange))
+										list.Add(icb.Body);
+								}
+							}
+						}
+					}
+					else if (m_caster is GameNPC npcCaster && npcCaster.Brain is ControlledMobBrain casterBrain)
+					{
+						GamePlayer player = casterBrain.GetPlayerOwner();
+
+						if (player != null)
+						{
+							// Add both the pet and owner to the list
+							if (m_caster.IsWithinRadius(player, spellRange))
+								list.Add(player);
+							list.Add(m_caster);
+						}
+						else
+							list.Add(m_caster);
+					}
+					else
+						list.Add(m_caster);
 
 					break;
 				}
