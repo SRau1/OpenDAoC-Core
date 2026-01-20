@@ -412,12 +412,11 @@ namespace DOL.GS
             if (regularDamageAdds != null)
             {
                 regularDamageAdds.Sort(static (a, b) => b.SpellHandler.Spell.Damage.CompareTo(a.SpellHandler.Spell.Damage));
-                int numRegularDmgAddsApplied = 0;
 
+                // Apply all regular damage-add effects at 100% effectiveness.
                 foreach (ECSGameSpellEffect damageAdd in regularDamageAdds)
                 {
-                    (damageAdd.SpellHandler as DamageAddSpellHandler).Handle(ad, numRegularDmgAddsApplied > 0 ? 0.5 : 1.0);
-                    numRegularDmgAddsApplied++;
+                    (damageAdd.SpellHandler as DamageAddSpellHandler).Handle(ad, 1.0);
                 }
             }
         }
