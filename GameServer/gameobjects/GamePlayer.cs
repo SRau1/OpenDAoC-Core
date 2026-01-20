@@ -2324,9 +2324,10 @@ namespace DOL.GS
             // From Uthgard.
             // 6s normal, 3s sitting, 14s combat, 10s sitting combat.
             // There is no elegant formula for this. Sitting + in-combat might have been caused by rounding errors on Live.
+            // My change, 5s normal, 2s sitting, 10s combat, 6s sitting combat.
             bool inCombat = InCombat;
             bool isSitting = IsSitting;
-            int interval = 6 - (isSitting ? 3 : 0) + (inCombat ? 8 : 0) - (isSitting && inCombat ? 1 : 0);
+            int interval = 5 - (isSitting ? 3 : 0) + (inCombat ? 5 : 0) - (isSitting && inCombat ? 1 : 0);
             return interval * 1000;
         }
 
