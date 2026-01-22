@@ -262,6 +262,18 @@ namespace DOL.GS.Spells
         public override eProperty Property1 => eProperty.WeaponSkill;
     }
 
+    /// <summary>
+    /// Flat (additive) weapon skill bonus. This is separate from eProperty.WeaponSkill (percent multiplier).
+    /// </summary>
+    [SpellHandler(eSpellType.WeaponSkillBonusBuff)]
+    public class WeaponSkillBonusBuff(GameLiving caster, Spell spell, SpellLine line) : SingleStatBuff(caster, spell, line)
+    {
+        public override bool BuffReceivesSpecBonus => true;
+        public override string ShortDescription => $"Increases {TargetPronoun} weapon skill by {Spell.Value}.";
+        public override eBuffBonusCategory BonusCategory1 => eBuffBonusCategory.SpecBuff;
+        public override eProperty Property1 => eProperty.WeaponSkillBonus;
+    }
+
     [SpellHandler(eSpellType.StealthSkillBuff)]
     public class StealthSkillBuff(GameLiving caster, Spell spell, SpellLine line) : SingleStatBuff(caster, spell, line)
     {

@@ -5527,7 +5527,9 @@ namespace DOL.GS
 
             int classBaseWeaponSkill = weapon.SlotPosition == (int)eInventorySlot.DistanceWeapon ? CharacterClass.WeaponSkillRangedBase : CharacterClass.WeaponSkillBase;
             double weaponSkill = Level * classBaseWeaponSkill / 200.0 * (1 + 0.01 * GetWeaponStat(weapon) / 2) * Effectiveness;
-            return Math.Max(1, weaponSkill * GetModified(eProperty.WeaponSkill) * 0.01);
+            weaponSkill = Math.Max(1, weaponSkill * GetModified(eProperty.WeaponSkill) * 0.01);
+            weaponSkill += GetModified(eProperty.WeaponSkillBonus);
+            return Math.Max(1, weaponSkill);
         }
 
         /// <summary>
@@ -5638,7 +5640,12 @@ namespace DOL.GS
                 double m = 0.56 + itemBonus / 70.0;
                 double weaponSpec = WeaponSpecLevel(ActiveWeapon) + itemBonus * m;
                 double oldWStoNewWSScalar = (3 + .02 * GetWeaponStat(ActiveWeapon) ) /(1 + .005 * GetWeaponStat(ActiveWeapon));
-                return (int)(GetWeaponSkill(ActiveWeapon) * (1.00 + weaponSpec * 0.01) * oldWStoNewWSScalar);
+                
+                // Get base weapon skill without the flat bonus for scaling
+                double baseWeaponSkill = GetWeaponSkill(ActiveWeapon) - GetModified(eProperty.WeaponSkillBonus);
+                
+                // Apply legacy scaling to base, then add flat bonus unscaled so displayed increase matches actual bonus
+                return (int)(baseWeaponSkill * (1.00 + weaponSpec * 0.01) * oldWStoNewWSScalar + GetModified(eProperty.WeaponSkillBonus));
             }
         }
 

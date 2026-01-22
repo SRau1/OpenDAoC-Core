@@ -80,6 +80,10 @@ namespace DOL.GS
                     return eEffect.DexQuickBuff;
                 case eSpellType.QuicknessBuff:
                     return eEffect.QuicknessBuff;
+                case eSpellType.WeaponSkillBuff:
+                    return eEffect.WeaponSkillBuff;
+                case eSpellType.WeaponSkillBonusBuff:
+                    return eEffect.WeaponSkillBonusBuff;
                 case eSpellType.AcuityBuff:
                     return eEffect.AcuityBuff;
                 case eSpellType.ArmorAbsorptionBuff:
@@ -353,6 +357,12 @@ namespace DOL.GS
                     list.Add(eProperty.WeaponSkill);
                     list.Add(eProperty.Constitution);
                     return list;
+                case eEffect.WeaponSkillBuff:
+                    list.Add(eProperty.WeaponSkill);
+                    return list;
+                case eEffect.WeaponSkillBonusBuff:
+                    list.Add(eProperty.WeaponSkillBonus);
+                    return list;
                 case eEffect.DexQuickBuff:
                 case eEffect.DexQuiDebuff:
                     list.Add(eProperty.Dexterity);
@@ -547,6 +557,12 @@ namespace DOL.GS
                 case eEffect.SpecAFBuff:
                 case eEffect.PaladinAf:
                 case eEffect.ArmorFactorDebuff:
+                {
+                    playerUpdate |= PlayerUpdate.WeaponArmor;
+                    break;
+                }
+                case eEffect.WeaponSkillBuff:
+                case eEffect.WeaponSkillBonusBuff:
                 {
                     playerUpdate |= PlayerUpdate.WeaponArmor;
                     break;

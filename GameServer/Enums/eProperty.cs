@@ -142,7 +142,12 @@ namespace DOL.GS
         Skill_Last = 115,
         #endregion
 
-        // 116 - 117 Available
+        // 117 Available
+
+        /// <summary>
+        /// Flat weapon skill bonus (additive).
+        /// </summary>
+        WeaponSkillBonus = 116,
 
         Of_Toughness = 118,
         CriticalDebuffHitChance = 119,

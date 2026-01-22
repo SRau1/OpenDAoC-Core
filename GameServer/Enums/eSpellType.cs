@@ -152,6 +152,7 @@ namespace DOL.GS
         SuperiorCourageBuff,
         ToHitBuff,
         WeaponSkillBuff,
+        WeaponSkillBonusBuff,
         Summon,
         SummonMinion,
         SummonCommander,

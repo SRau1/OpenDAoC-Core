@@ -160,6 +160,10 @@ namespace DOL.GS
         Volley,
         StrikingTheSoul,
         SpeedOfSound,
-        Ichor
+        Ichor,
+
+        // Custom (added without renumbering existing effects)
+        WeaponSkillBuff,
+        WeaponSkillBonusBuff
     }
 }

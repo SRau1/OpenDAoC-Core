@@ -2725,7 +2725,9 @@ namespace DOL.GS
 		public override double GetWeaponSkill(DbInventoryItem weapon)
 		{
 			double weaponSkill = Math.Max(1, (int) Level) * 2.6 * (1 + 0.01 * (GetWeaponStat(weapon) + 30) / 2);
-			return Math.Max(1, weaponSkill * GetModified(eProperty.WeaponSkill) * 0.01);
+			weaponSkill = Math.Max(1, weaponSkill * GetModified(eProperty.WeaponSkill) * 0.01);
+			weaponSkill += GetModified(eProperty.WeaponSkillBonus);
+			return Math.Max(1, weaponSkill);
 		}
 
 		/// <summary>
