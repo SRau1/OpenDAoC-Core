@@ -3129,14 +3129,14 @@ namespace DOL.GS.Spells
 			int primaryResistModifier = ad.Target.GetResist(damageType);
 			int secondaryResistModifier = Math.Min(80, ad.Target.SpecBuffBonusCategory[property]);
 
-			// Resist Pierce is a special bonus which has been introduced with ToA.
-			// It reduces the resistance that the victim receives through items by the specified percentage.
-			// http://de.daocpedia.eu/index.php/Resistenz_durchdringen (translated)
-			int resistPierce = Caster.GetModified(eProperty.ResistPierce);
+		// Resist Pierce reduces the target's total resistance (all sources) by the specified percentage.
+		// If resistance goes below 0, it causes bonus damage.
+		int resistPierce = Caster.GetModified(eProperty.ResistPierce);
 
-			// Subtract max ItemBonus of property of target, but at least 0.
-			if (resistPierce > 0 && Spell.SpellType != eSpellType.Archery)
-				primaryResistModifier -= Math.Max(0, Math.Min(ad.Target.ItemBonus[property], resistPierce));
+		// Subtract resist pierce from total resistance (all sources: items, buffs, racial, etc.)
+		// Allow negative values to cause bonus damage.
+		if (resistPierce > 0 && Spell.SpellType != eSpellType.Archery)
+			primaryResistModifier -= resistPierce;
 
 			double resistModifier = damage * primaryResistModifier * -0.01;
 			resistModifier += (damage + resistModifier) * secondaryResistModifier * -0.01;

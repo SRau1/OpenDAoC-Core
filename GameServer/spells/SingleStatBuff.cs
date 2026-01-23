@@ -315,7 +315,7 @@ namespace DOL.GS.Spells
     [SpellHandler(eSpellType.ResiPierceBuff)]
     public class ResiPierceBuff(GameLiving caster, Spell spell, SpellLine line) : SingleStatBuff(caster, spell, line)
     {
-        public override string ShortDescription => $"Grants you {Spell.Value}% chance to penetrate magical resistances.";
+        public override string ShortDescription => $"Your spells ignore {Spell.Value}% of target resistances. Negative resistance deals bonus damage.";
         public override eProperty Property1 => eProperty.ResistPierce;
     }
 }
