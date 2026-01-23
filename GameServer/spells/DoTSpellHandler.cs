@@ -82,10 +82,17 @@ namespace DOL.GS.Spells
             if (player == null)
                 return;
 
+            string modMessage = string.Empty;
+
+            if (ad.Modifier > 0)
+                modMessage = $" (+{ad.Modifier})";
+            else if (ad.Modifier < 0)
+                modMessage = $" ({ad.Modifier})";
+
             if (SpellLine.KeyName is GlobalSpellsLines.Item_Effects)
-                MessageToCaster(string.Format(LanguageMgr.GetTranslation(player.Client, "DoTSpellHandler.SendDamageMessages.YouHitFor", ad.Target.GetName(0, false), ad.Damage)), eChatType.CT_Spell);
+                MessageToCaster(string.Format(LanguageMgr.GetTranslation(player.Client, "DoTSpellHandler.SendDamageMessages.YouHitFor", ad.Target.GetName(0, false), ad.Damage) + modMessage), eChatType.CT_Spell);
             else
-                MessageToCaster(string.Format(LanguageMgr.GetTranslation(player.Client, "DoTSpellHandler.SendDamageMessages.YourHitsFor", Spell.Name, ad.Target.GetName(0, false), ad.Damage)), eChatType.CT_Spell);
+                MessageToCaster(string.Format(LanguageMgr.GetTranslation(player.Client, "DoTSpellHandler.SendDamageMessages.YourHitsFor", Spell.Name, ad.Target.GetName(0, false), ad.Damage) + modMessage), eChatType.CT_Spell);
 
             if (ad.CriticalDamage > 0)
                 MessageToCaster($"You critically hit for an additional {ad.CriticalDamage} damage! ({m_caster.DebuffCriticalChance}%)", eChatType.CT_Spell);
