@@ -50,6 +50,8 @@ namespace DOL.GS
                 case eSpellType.DamageShield: // FocusShield: Could be the wrong SpellType here.
                     return eEffect.FocusShield;
                 case eSpellType.AblativeArmor:
+                case eSpellType.MagicAblativeArmor:
+                case eSpellType.BothAblativeArmor:
                     return eEffect.AblativeArmor;
                 case eSpellType.MeleeDamageBuff:
                     return eEffect.MeleeDamageBuff;

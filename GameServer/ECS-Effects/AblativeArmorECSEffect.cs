@@ -1,4 +1,4 @@
-﻿namespace DOL.GS
+namespace DOL.GS
 {
     public class AblativeArmorECSGameEffect : ECSGameSpellEffect
     {
@@ -21,6 +21,13 @@
             // "Your crystal shield fades."
             // "{0}'s crystal shield fades."
             OnEffectExpiresMsg(true, false, true);
+        }
+
+        public override void OnEffectPulse()
+        {
+            // Restore the ablative value to full on each pulse
+            // This allows the spell to "refresh" the ablative armor every few seconds
+            RemainingValue = (int) SpellHandler.Spell.Value;
         }
     }
 }

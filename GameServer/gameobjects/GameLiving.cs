@@ -1514,10 +1514,26 @@ namespace DOL.GS
 						if (ad.Attacker is GamePlayer playerAttacker)
 							playerAttacker.Out.SendMessage(LanguageMgr.GetTranslation(playerAttacker.Client, "AblativeArmor.Attacker", damageAbsorbed), eChatType.CT_Spell, eChatLoc.CL_SystemWindow);
 
+						// For pulsing ablative armor (Frequency > 0, Pulse = 0), don't end the effect when depleted
+						// The OnEffectPulse() method will restore RemainingValue on the next pulse
 						if (ablativeHp <= 0)
-							effect.End();
+						{
+							if (effect.SpellHandler.Spell.IsPulsingEffect)
+							{
+								// Keep the effect active, just set RemainingValue to 0
+								// It will be restored on the next pulse
+								effect.RemainingValue = 0;
+							}
+							else
+							{
+								// For non-pulsing ablative armor, end the effect when depleted
+								effect.End();
+							}
+						}
 						else
+						{
 							effect.RemainingValue = ablativeHp;
+						}
 					}
 				}
 
