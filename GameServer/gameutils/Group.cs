@@ -44,6 +44,7 @@ namespace DOL.GS
 
         public bool AutosplitLoot { get; set; } = true;
         public bool AutosplitCoins { get; set; } = true;
+        public GamePlayer MasterLooter { get; set; } = null;
         public byte Status { get; set; } = 0x0A;
 
         public AbstractMission Mission
@@ -179,6 +180,10 @@ namespace DOL.GS
                 if (!_groupMembers.Remove(living))
                     return false;
 
+                // Clear master looter if they're leaving
+                if (living is GamePlayer player && MasterLooter == player)
+                    MasterLooter = null;
+
                 living.Group = null;
                 living.GroupIndex = 0xFF;
 
@@ -189,12 +194,12 @@ namespace DOL.GS
             SendMessageToGroupMembers($"{living.Name} has left the group.", eChatType.CT_System, eChatLoc.CL_SystemWindow);
 
             // Update Player.
-            if (living is GamePlayer player)
+            if (living is GamePlayer leavingPlayer)
             {
-                player.Out.SendGroupWindowUpdate();
-                player.Out.SendQuestListUpdate();
+                leavingPlayer.Out.SendGroupWindowUpdate();
+                leavingPlayer.Out.SendQuestListUpdate();
 
-                List<ECSGameAbilityEffect> abilityEffects = player.effectListComponent.GetAbilityEffects();
+                List<ECSGameAbilityEffect> abilityEffects = leavingPlayer.effectListComponent.GetAbilityEffects();
 
                 // Cancel ability effects.
                 foreach (ECSGameAbilityEffect abilityEffect in abilityEffects)
@@ -238,14 +243,14 @@ namespace DOL.GS
                 // We could also check for non controlled pets (turrets for example) around the player, but it isn't very important.
                 if (GameServer.Instance.Configuration.ServerType is EGameServerType.GST_PvP)
                 {
-                    IControlledBrain controlledBrain = player.ControlledBrain;
-                    Guild playerGuild = player.Guild;
+                    IControlledBrain controlledBrain = leavingPlayer.ControlledBrain;
+                    Guild playerGuild = leavingPlayer.Guild;
                     bool updateOneself = false;
 
                     // Update how the removed player sees their pet and themself.
                     if (controlledBrain != null)
                     {
-                        SendControlledBodyGuildID(player, playerGuild, controlledBrain.Body);
+                        SendControlledBodyGuildID(leavingPlayer, playerGuild, controlledBrain.Body);
                         updateOneself = true;
                     }
 
@@ -268,18 +273,18 @@ namespace DOL.GS
                             // Update how the removed player sees the group member's pet and themself.
                             if (groupMemberControlledBrain != null)
                             {
-                                SendControlledBodyGuildID(player, groupMemberGuild, groupMemberControlledBrain.Body);
+                                SendControlledBodyGuildID(leavingPlayer, groupMemberGuild, groupMemberControlledBrain.Body);
                                 updateOneself = true;
                             }
                         }
                     }
 
                     if (updateOneself)
-                        player.Out.SendObjectGuildID(player, playerGuild ?? Guild.DummyGuild);
+                        leavingPlayer.Out.SendObjectGuildID(leavingPlayer, playerGuild ?? Guild.DummyGuild);
                 }
 
-                player.Out.SendMessage("You leave your group.", eChatType.CT_System, eChatLoc.CL_SystemWindow);
-                player.Notify(GamePlayerEvent.LeaveGroup, player);
+                leavingPlayer.Out.SendMessage("You leave your group.", eChatType.CT_System, eChatLoc.CL_SystemWindow);
+                leavingPlayer.Notify(GamePlayerEvent.LeaveGroup, leavingPlayer);
             }
 
             lock (_groupMembersLock)
@@ -469,6 +474,7 @@ namespace DOL.GS
         {
             money.AssertLockAcquisition();
 
+            // Master loot only affects items, coins are always autosplit normally
             if (!AutosplitCoins)
                 return TryPickUpResult.DoesNotWant;
 
@@ -514,12 +520,48 @@ namespace DOL.GS
         {
             item.AssertLockAcquisition();
 
+            static bool GiveItem(GamePlayer player, DbInventoryItem item)
+            {
+                return item.IsStackable ?
+                    player.Inventory.AddTemplate(item, item.Count, eInventorySlot.FirstBackpack, eInventorySlot.LastBackpack) :
+                    player.Inventory.AddItem(eInventorySlot.FirstEmptyBackpack, item);
+            }
+
+            // Items discarded by players can only be picked up by those same players.
+            if (item.IsPlayerDiscarded)
+                return TryPickUpResult.DoesNotWant;
+
+            // If master looter is set, only give loot to the master looter
+            if (MasterLooter != null)
+            {
+                // Verify master looter is still in the group and active
+                if (!IsInTheGroup(MasterLooter) || MasterLooter.ObjectState != eObjectState.Active || !MasterLooter.CanSeeObject(item))
+                {
+                    // Master looter is no longer valid, clear it
+                    MasterLooter = null;
+                    // Fall through to normal autosplit logic
+                }
+                else
+                {
+                    if (!GiveItem(MasterLooter, item.Item))
+                    {
+                        MasterLooter.Out.SendMessage(LanguageMgr.GetTranslation(MasterLooter.Client.Account.Language, "GamePlayer.PickupObject.BackpackFull"), eChatType.CT_System, eChatLoc.CL_SystemWindow);
+                        return TryPickUpResult.Blocked;
+                    }
+
+                    Message.SystemToOthers(source, LanguageMgr.GetTranslation(source.Client.Account.Language, "GamePlayer.PickupObject.GroupMemberPicksUp", Name, item.Item.GetName(1, false)), eChatType.CT_System);
+                    SendMessageToGroupMembers(LanguageMgr.GetTranslation(source.Client.Account.Language, "GamePlayer.PickupObject.Autosplit", item.Item.GetName(1, true), MasterLooter.Name), eChatType.CT_System, eChatLoc.CL_SystemWindow);
+                    InventoryLogging.LogInventoryAction("(ground)", MasterLooter, eInventoryActionType.Loot, item.Item.Template, item.Item.IsStackable ? item.Item.Count : 1);
+                    _ = item.RemoveFromWorld();
+                    return TryPickUpResult.Success;
+                }
+            }
+
             // A group is only able to pick up items if auto split is enabled. Otherwise, solo logic should apply.
             // Group members are filtered to exclude far away players or players with auto split solo enabled.
             // A player with enough room in his inventory is chosen randomly.
             // If there is none, the item should simply stays on the ground.
-            // Items discarded by players can only be picked up by those same players.
-            if (!AutosplitLoot || item.IsPlayerDiscarded)
+            if (!AutosplitLoot)
                 return TryPickUpResult.DoesNotWant;
 
             List<GamePlayer> eligibleMembers = new(8);
@@ -565,13 +607,6 @@ namespace DOL.GS
                 } while (eligibleMembers.Count > 0);
 
                 return false;
-
-                static bool GiveItem(GamePlayer player, DbInventoryItem item)
-                {
-                    return item.IsStackable ?
-                        player.Inventory.AddTemplate(item, item.Count, eInventorySlot.FirstBackpack, eInventorySlot.LastBackpack) :
-                        player.Inventory.AddItem(eInventorySlot.FirstEmptyBackpack, item);
-                }
             }
         }
 

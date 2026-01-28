@@ -89,6 +89,9 @@ Scripts.Players.Autosplit.Loot:				The leader switched
 Scripts.Players.Autosplit.Off:				The leader switched off the autosplit.
 Scripts.Players.Autosplit.On:				The leader switched on the autosplit.
 Scripts.Players.Autosplit.Self:				{0} switched
+Scripts.Players.Autosplit.MasterLootSet:		The leader set {0} as master looter - all items will go to them.
+Scripts.Players.Autosplit.MasterLootCleared:	The leader cleared the master looter - items will be distributed normally.
+Scripts.Players.Autosplit.PlayerNotFound:		Player '{0}' not found in group.
 
 ## /groupsort
 Scripts.Players.Groupsort.InGroup:			You must be in a group to use this command.
